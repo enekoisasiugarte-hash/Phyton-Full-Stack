@@ -26,12 +26,11 @@ def ejecutar_importacion():
     for _, row in df.iterrows():
         # Limpieza del código: evitamos el ".0" si Excel lo lee como número
         val_codigo = row.iloc[0]
-        if pd.isna(val_codigo):
-        # Si la celda del código está vacía o el nombre es nulo, saltamos la fila
         if pd.isna(val_codigo) or pd.isna(row.iloc[1]):
-            continue
+            continue  # Salta si el código o el nombre están vacíos
         
-        codigo_bc = str(val_codigo).split('.')[0].strip()
+        # Aseguramos que el código sea un string limpio, eliminando el .0 de Excel
+        codigo_bc = str(val_codigo).replace('.0', '').strip()
         codigos_en_excel.append(codigo_bc)
         nombre = str(row.iloc[1]).strip() if pd.notna(row.iloc[1]) else "Sin nombre"
         

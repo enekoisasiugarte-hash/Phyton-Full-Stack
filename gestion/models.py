@@ -24,6 +24,10 @@ class Cliente(models.Model):
     def __str__(self):
         return f"{self.codigo_bc} - {self.nombre}"
 
+    class Meta:
+        verbose_name = "Cliente"
+        verbose_name_plural = "Bases de Datos: Clientes"
+
 # NUEVO MODELO DE ARTÍCULOS
 class Articulo(models.Model):
     codigo = models.CharField(max_length=50, unique=True, verbose_name="Nº")
@@ -37,4 +41,4 @@ class Articulo(models.Model):
 
     class Meta:
         verbose_name = "Artículo"
-        verbose_name_plural = "Artículos"
+        verbose_name_plural = "Bases de Datos: Artículos"
