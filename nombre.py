@@ -1,39 +1,49 @@
-nombre = "Eneko"
-apellido = "Isasi"
-edad = 54
-direccion = "Ramon Rubial, 15"
-print(nombre)
-print(f"Hola, mi nombre es {nombre} {apellido} y vivo en {direccion}")
-print("Comprobación de sincronización realizada con éxito.")
-# Variables numéricas y booleanas
-altura = 1.80          # Esto es un Float
-estudiante = True      # Esto es un Boolean (Nota la mayúscula)
+import os
+import django
+import pandas as pd
 
-# Operaciones con variables
-puntuacion_total = 10 + 5
-es_mayor_de_edad = edad >= 18  # Comparación que devuelve un Boolean
+# Configuración de Django
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+django.setup()
 
-print(f"¿Es {nombre} mayor de edad?: {es_mayor_de_edad}")
-print(f"Su altura es de {altura} metros.")
-altura = altura + 0.05
-print(f"Si me pongo zapatos, mido {altura} metros.")
-# --- Ejercicio 1: Intercambio de variables ---
-vaso_rojo = "Agua"
-vaso_azul = "Vino"
+from gestion.models import Articulo
 
-print(f"Antes: Rojo tiene {vaso_rojo} y Azul tiene {vaso_azul}")
+def cargar_articulos():
+    fichero = 'Lista de productos.xlsx'
+    
+    if not os.path.exists(fichero):
+        print(f"Error: No encuentro el archivo {fichero}")
+        return
 
-# Tu reto: Intercambia los contenidos. 
-# Pista: Usa una variable llamada 'ayuda' para no derramar nada.
+    # Leemos el Excel
+    df = pd.read_excel(fichero)
+    print(f"Sincronizando {len(df)} artículos...")
 
-ayuda = vaso_rojo
-vaso_rojo = vaso_azul
-vaso_azul = ayuda
+    for _, fila in df.iterrows():
+        # 0: Nº, 1: Descripción, 2: Unidad medida, 3: Coste, 4: Alias
+        codigo_str = str(fila.iloc[0]).strip()
+        desc = str(fila.iloc[1]).strip()
+        u_medida = str(fila.iloc[2]).strip()
+        
+        try:
+            coste = float(fila.iloc[3])
+        except:
+            coste = 0.0
+            
+        alias = str(fila.iloc[4]).strip() if pd.notna(fila.iloc[4]) else ""
 
-print(f"Después: Rojo tiene {vaso_rojo} y Azul tiene {vaso_azul}")
-print("Ejercicio 1 completado con éxito!")
-print("Ejercicio 2 completado con éxito!")  
-precio = 100
-iva = precio * 0.21
-total = precio + iva
-print(f"El total con IVA es: {total}")
+        # Guardar en la base de datos
+        Articulo.objects.update_or_create(
+            codigo=codigo_str,
+            defaults={
+                'descripcion': desc,
+                'unidad_medida': u_medida,
+                'coste_unitario': coste,
+                'descripcion_alias': alias,
+            }
+        )
+
+    print("--- ¡IMPORTACIÓN DE ARTÍCULOS COMPLETADA! ---")
+
+if __name__ == '__main__':
+    cargar_articulos()
