@@ -28,10 +28,8 @@ def cargar_articulos():
         u_medida = str(fila.iloc[2]).strip()
         
         try:
-            coste = float(fila.iloc[3])
             coste = Decimal(str(fila.iloc[3])).quantize(Decimal("0.00"))
         except (ValueError, TypeError):
-            coste = 0.0
             coste = Decimal("0.00")
             
         alias = str(fila.iloc[4]).strip() if pd.notna(fila.iloc[4]) else ""
